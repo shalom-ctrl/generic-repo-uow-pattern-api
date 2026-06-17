@@ -8,12 +8,14 @@ namespace generic_repo_uow_pattern.Repository
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly Dictionary<Type, object> _repositories;
+        public IProductRepository ProductRepository { get; }
         private IDbContextTransaction _dbTransaction;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
             _repositories = new Dictionary<Type, object>();
+            ProductRepository = new ProductRepository(_dbContext);
         }
         public async Task BeginTransactionAsync()
 

@@ -3,6 +3,7 @@ using generic_repo_uow_pattern.Interface;
 using generic_repo_uow_pattern.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace generic_repo_uow_pattern.Controllers
 {
@@ -10,18 +11,25 @@ namespace generic_repo_uow_pattern.Controllers
     [ApiController]
     public class ProductWithUOWController : ControllerBase
     {
-        private readonly IUnitOfWork _work;
+        private readonly IUnitOfWork _unitofwork;
 
-        public ProductWithUOWController(IUnitOfWork work)
+        public ProductWithUOWController(IUnitOfWork unitofwork)
         {
-            _work = work;
+            _unitofwork = unitofwork;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _work.GetRepository<Product>().GetAllAsync();
+            var products = await _unitofwork.GetRepository<Product>().GetAllAsync();
             return Ok(products);
+        }
+
+        [HttpGet("productbyName")]
+        public async Task<IActionResult> GetByName(string productName)
+        {
+            var product = await _unitofwork.ProductRepository.GetProductsByName(productName);
+            return Ok(product);
         }
 
         [HttpPost]
@@ -29,7 +37,7 @@ namespace generic_repo_uow_pattern.Controllers
         {
             try
             {
-                using var transaction = _work.BeginTransactionAsync();
+                using var transaction = _unitofwork.BeginTransactionAsync();
 
                 var newProduct = new Product
                 {
@@ -37,8 +45,8 @@ namespace generic_repo_uow_pattern.Controllers
                     Price = product.Price
                 };
 
-                var productresult = await _work.GetRepository<Product>().AddAsync(newProduct);
-                await _work.SaveChangesAsync();
+                var productresult = await _unitofwork.GetRepository<Product>().AddAsync(newProduct);
+                await _unitofwork.SaveChangesAsync();
 
                 var order = new Order
                 {
@@ -46,10 +54,10 @@ namespace generic_repo_uow_pattern.Controllers
                     OrderDate = DateTime.Now
                 };
 
-                await _work.GetRepository<Order>().AddAsync(order);
-                await _work.SaveChangesAsync();
+                await _unitofwork.GetRepository<Order>().AddAsync(order);
+                await _unitofwork.SaveChangesAsync();
 
-                await _work.CommitTransactionAsync();
+                await _unitofwork.CommitTransactionAsync();
 
                 var responseDto = new ProductResponse
                 {
@@ -62,7 +70,7 @@ namespace generic_repo_uow_pattern.Controllers
             }
             catch (Exception ex)
             {
-                await _work.RollBackTransactionAsync();
+                await _unitofwork.RollBackTransactionAsync();
                 throw;
             }
         }
