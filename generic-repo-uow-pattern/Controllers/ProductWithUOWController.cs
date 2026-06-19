@@ -21,15 +21,18 @@ namespace generic_repo_uow_pattern.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _unitofwork.GetRepository<Product>().GetAllAsync();
+            var productRepository = _unitofwork.GetRepository<IProductRepository, Product>();
+            var products = await productRepository.GetAllAsync();
             return Ok(products);
         }
 
         [HttpGet("productbyName")]
         public async Task<IActionResult> GetByName(string productName)
         {
-            var product = await _unitofwork.ProductRepository.GetProductsByName(productName);
-            return Ok(product);
+            var productRepository = _unitofwork.GetRepository<IProductRepository, Product>();
+            var result = await productRepository.GetProductsByName(productName);
+           // var product = await _unitofwork.ProductRepository.GetProductsByName(productName);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -45,7 +48,8 @@ namespace generic_repo_uow_pattern.Controllers
                     Price = product.Price
                 };
 
-                var productresult = await _unitofwork.GetRepository<Product>().AddAsync(newProduct);
+                var productRepository = _unitofwork.GetRepository<IProductRepository, Product>();
+                var productresult = await productRepository.AddAsync(newProduct);
                 await _unitofwork.SaveChangesAsync();
 
                 var order = new Order
