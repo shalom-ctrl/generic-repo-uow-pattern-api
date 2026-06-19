@@ -7,13 +7,15 @@ namespace generic_repo_uow_pattern.Repository
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IServiceProvider _serviceProvider;
         private readonly Dictionary<Type, object> _repositories;
         public IProductRepository ProductRepository { get; }
         private IDbContextTransaction _dbTransaction;
 
-        public UnitOfWork(ApplicationDbContext dbContext)
+        public UnitOfWork(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
             _dbContext = dbContext;
+            _serviceProvider = serviceProvider;
             _repositories = new Dictionary<Type, object>();
             ProductRepository = new ProductRepository(_dbContext);
         }
@@ -82,6 +84,26 @@ namespace generic_repo_uow_pattern.Repository
             return await _dbContext.SaveChangesAsync();
         }
 
+        TRepository IUnitOfWork.GetRepository<TRepository, TEntity>()
+        {
+            var repository = _serviceProvider.GetService<TRepository>();
+
+            if(repository == null)
+            {
+                throw new InvalidOperationException($"Failed to get repository of type {typeof(TRepository)}");
+            }
+            
+            if(repository is IRepository<TEntity> genericRepository)
+            {
+                genericRepository.SetDbContext(_dbContext);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Repository of type {typeof(TRepository)}");
+            }
+
+            return repository;
+        }
     }
 
 }

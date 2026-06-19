@@ -7,7 +7,7 @@ namespace generic_repo_uow_pattern.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly DbSet<T> _dbSet;
-        private readonly ApplicationDbContext _dbContext;
+        private ApplicationDbContext _dbContext;
 
         public Repository(ApplicationDbContext dbContext)
         {
@@ -35,6 +35,11 @@ namespace generic_repo_uow_pattern.Repository
         public async Task<T> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
+        }
+
+        public void SetDbContext(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
         }
 
         public async Task UpdateAsync(T entity)

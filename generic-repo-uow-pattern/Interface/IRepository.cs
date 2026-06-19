@@ -1,4 +1,6 @@
-﻿namespace generic_repo_uow_pattern.Interface
+﻿using generic_repo_uow_pattern.Data;
+
+namespace generic_repo_uow_pattern.Interface
 {
     public interface IRepository<T> where T : class
     {
@@ -7,5 +9,6 @@
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
+        void SetDbContext(ApplicationDbContext dbContext);
     }
 }

@@ -8,11 +8,11 @@ namespace generic_repo_pattern.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductWithGenericRepoController : ControllerBase
     {
         private readonly generic_repo_uow_pattern.Interface.IRepository<Product> _productRepository;
 
-        public ProductController(IRepository<Product> productRepository)
+        public ProductWithGenericRepoController(IRepository<Product> productRepository)
         {
             _productRepository = productRepository;
         }
