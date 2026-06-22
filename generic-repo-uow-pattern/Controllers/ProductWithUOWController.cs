@@ -35,6 +35,26 @@ namespace generic_repo_uow_pattern.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet("product-with-paging")]
+        public async Task<IActionResult> GetProductWithPaging(int page = 1, int pageSize = 10, string SearchTerm = null)
+        {
+            var productRepository = _unitofwork.GetRepository<IProductRepository, Product>();
+            var result = await productRepository.GetAllProductsWithPaging(page, pageSize, SearchTerm);
+            var metadata = new
+            {
+                result.TotalCount,
+                result.PageSize,
+                result.CurrentPage,
+                result.TotalPages,
+                result.HasNext,
+                result.HasPrevious,
+                result
+            };
+
+            return Ok(metadata);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateProduct(ProductRequest product)
         {
