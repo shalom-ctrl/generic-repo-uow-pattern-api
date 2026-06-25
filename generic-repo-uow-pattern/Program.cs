@@ -1,6 +1,7 @@
 using AutoMapper;
 using generic_repo_uow_pattern.CustomHealthCheck;
 using generic_repo_uow_pattern.Data;
+using generic_repo_uow_pattern.Exception;
 using generic_repo_uow_pattern.Interface;
 using generic_repo_uow_pattern.Profiler;
 using generic_repo_uow_pattern.Repository;
@@ -12,6 +13,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+//builder.Services.AddExceptionHandler<TimeOutException>();
+//builder.Services.AddExceptionHandler<DefaultException>();
+
 
 builder.Services.AddControllers().
     AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -41,6 +47,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
+
+
+app.UseExceptionHandler(opt => { });
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -92,7 +92,7 @@ namespace generic_repo_uow_pattern.Controllers
 
                 return StatusCode(StatusCodes.Status201Created, responseDto);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 await _unitofwork.RollBackTransactionAsync();
                 throw;
