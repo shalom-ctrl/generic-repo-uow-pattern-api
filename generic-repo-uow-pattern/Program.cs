@@ -1,6 +1,8 @@
+using AutoMapper;
 using generic_repo_uow_pattern.CustomHealthCheck;
 using generic_repo_uow_pattern.Data;
 using generic_repo_uow_pattern.Interface;
+using generic_repo_uow_pattern.Profiler;
 using generic_repo_uow_pattern.Repository;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -24,6 +26,11 @@ builder.Services.AddHealthChecksUI(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
 
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>(nameof(ApiHealthCheck))
