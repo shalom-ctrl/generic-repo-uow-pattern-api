@@ -46,9 +46,24 @@ namespace generic_repo_uow_pattern.Repository
         public async Task<T> FindAsync(Expression<Func<T, bool>> match)
             => await _dbSet.SingleOrDefaultAsync(match);
 
+        public async Task<T> FindAsync(ISpecification<T> specification = null)
+        {
+            return await ApplySpecificationforList(specification).FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync(ISpecification<T> specification = null)
+        {
+            return ApplySpecificationforList(specification);
+        }
+
+        private IQueryable<T> ApplySpecificationforList(ISpecification<T> specification)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_dbSet.AsQueryable(), specification);
         }
 
         public async Task<T> GetByIdAsync(int id)

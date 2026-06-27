@@ -22,5 +22,8 @@ namespace generic_repo_uow_pattern.Interface
             int? pageNumber = null,
             int? pageSize = null,
             params Expression<Func<T, object>>[] includeProperties);
+
+        Task<IEnumerable<T>> GetAllAsync(ISpecification<T> specification = null);
+        Task<T> FindAsync(ISpecification<T> specification = null);
     }
 }
